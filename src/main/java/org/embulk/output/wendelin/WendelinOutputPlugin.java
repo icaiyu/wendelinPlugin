@@ -76,11 +76,6 @@ public class WendelinOutputPlugin
         if (wendelin == null){
             wendelin = new WendelinClient(streamtool_uri,user,passwd);
         }
-        
-        // retryable (idempotent) output:
-        // return resume(task.dump(), schema, taskCount, control);
-        
-        // non-retryable (non-idempotent) output:
         control.run(task.dump());
         
         log.info("Closed the stream!");
@@ -109,12 +104,11 @@ public class WendelinOutputPlugin
     public TransactionalPageOutput open(TaskSource taskSource, Schema schema, int taskIndex)
     {
         PluginTask task = taskSource.loadTask(PluginTask.class);
-        log.info("The Schema of open: " + schema);
         return new TransactionalPageOutput(){
-          //private final List<String> filenames = new ArrayList<>() ;
-          
           public void add(Page page){
+            log.info("The ADD: " + page.getStringReferences() + " ## " +page.getValueReferences());
             try {
+              String page_tag = tag + page.getStringReference(1).replaceAll(File.separator,".");
               wendelin.ingest(page_tag,Base64.decodeBase64(page.getStringReference(0)));
             } catch (Exception ex) {
               throw new RuntimeException(ex);

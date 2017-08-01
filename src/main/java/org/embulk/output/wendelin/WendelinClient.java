@@ -50,9 +50,9 @@ class WendelinClient
     {
         //CloseableHttpClient httpclient = HttpClients.createDefault();
         
-        String tag = "sample_01.txt";
+        //String tag = "sample_01.txt";
         URI uri = new URIBuilder(basic_uri)
-            .setParameter("reference",tag)
+            .setParameter("reference",reference)
             .build();
             
         

@@ -1,3 +1,8 @@
+/*
+ * The test of the wendelin is different from the test for the finame input and none-bin
+ * In this test we do not run the puglin which will send the data to the remote server(erp5)
+ * We mock the Wendelin Plugin and test the transaction.
+*/
 package org.embulk.output.wendelin;
 
 import org.embulk.EmbulkTestRuntime;
@@ -38,8 +43,8 @@ public class TestWendelinOutputPlugin
     public EmbulkTestRuntime runtime = new EmbulkTestRuntime();
     private ConfigSource config;
     private Schema schema;
-    private WendelinOutputPlugin plugin;     // Wendelin plugin is Not Mocked but the WendelinClinet is Mocked
-    private WendelinClient mClient;
+    private WendelinOutputPlugin plugin;     // The Wendelin plugin is Not Mocked
+    private WendelinClient mClient;          // The WendelinClinet is Mocked
     
     @Before
     public void createResources() throws Exception
@@ -56,7 +61,7 @@ public class TestWendelinOutputPlugin
     @Test
     public void testTransaction() throws Exception
     {
-        
+        // the Control is a abstract class we need to implement
         plugin.transaction(config, schema, 0, new OutputPlugin.Control()
         {
             @Override
@@ -66,26 +71,31 @@ public class TestWendelinOutputPlugin
             }
         });
         
-        assertEquals("user","user");
+        // Could not assertEquals because the user is a private variable of in the transaction func of the wendelin.
+        //assertEquals("user",plugin.user);
         //assertEquals("password",plugin.password);
         //assertEquals("streamtool_uri",plugin.streamtool_uri);
         
+        // When we run the transaction of the wendelin plugin we verify that the mClint.close is called
         verify(mClient,times(1)).close();
 
 
-
+        
         PluginTask task = pluginTask(config);
         
         // No errors happens, we check if we could have something happen in the Client
         TransactionalPageOutput output = plugin.open(task.dump(),schema,0);
-        // We need to mock a mockPage.
         
+        // We need to ArgumentCaptors to capture the argument of the mClient.ingest
         ArgumentCaptor<String> reference = ArgumentCaptor.forClass(String.class);
         ArgumentCaptor<byte[]> data_chunk = ArgumentCaptor.forClass(byte[].class);
         
         
+        
         String base64 = Base64.encodeBase64String("thedata".getBytes());
         List<String> lst = Arrays.asList(base64,"filename");
+        
+        // We mock a page
         Page page = Page.allocate(100).setStringReferences(lst);
         
         output.add(page);
