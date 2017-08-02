@@ -33,6 +33,8 @@ import java.util.List;
 import java.util.ArrayList;
 import java.io.IOException;
 
+import java.net.UnknownHostException;
+
 class WendelinClient
 {
     private String basic_uri;
@@ -80,8 +82,9 @@ class WendelinClient
             } finally {
                 response.close();
             }
-        } finally {
-            //httpclient.close();
+        } catch(UnknownHostException ex) {
+            System.out.println("catch the UnknowHostException");
+            throw ex;
         }
     }
     

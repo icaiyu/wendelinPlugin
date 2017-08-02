@@ -23,6 +23,7 @@ import java.util.Map;
 import java.util.List;
 import java.util.HashMap;
 import java.io.IOException;
+import java.io.File;
 
 public class WendelinOutputPlugin
         implements OutputPlugin
@@ -76,6 +77,8 @@ public class WendelinOutputPlugin
         if (wendelin == null){
             wendelin = new WendelinClient(streamtool_uri,user,passwd);
         }
+        
+    
         control.run(task.dump());
         
         log.info("Closed the stream!");
@@ -111,6 +114,7 @@ public class WendelinOutputPlugin
               String page_tag = tag + page.getStringReference(1).replaceAll(File.separator,".");
               wendelin.ingest(page_tag,Base64.decodeBase64(page.getStringReference(0)));
             } catch (Exception ex) {
+              log.info("Error when ingest the data");
               throw new RuntimeException(ex);
             }
           }
